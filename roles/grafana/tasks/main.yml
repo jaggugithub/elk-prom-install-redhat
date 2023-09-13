@@ -1,0 +1,48 @@
+---
+# Role to install Grafana 5.x
+
+- name: Download Grafana GPG Key
+  get_url:
+    url: "https://packages.grafana.com/gpg.key"
+    dest: /etc/pki/rpm-gpg/RPM-GPG-KEY-grafana
+
+- name: Install YUM Utils (needed for yum-config-manager)
+  package:
+    name: yum-utils
+    state: present
+
+- name: Add Grafana YUM Repository
+  yum_repository:
+    name: grafana
+    description: Grafana Stable Repository
+    baseurl: https://packages.grafana.com/oss/rpm
+    gpgcheck: 1
+    enabled: 1
+    gpgkey: https://packages.grafana.com/gpg.key
+#- name: Import Grafana GPG signing key
+#  apt_key:
+#      url: "https://packages.grafana.com/gpg.key"
+#      state: present
+
+#- name: Install apt-transport-https
+#  apt:
+#      name: apt-transport-https
+#      update_cache: yes
+
+#- name: Add Grafana APT repo to source list
+#  apt_repository:
+#      repo: deb https://packages.grafana.com/oss/deb stable main
+#      state: present
+#      update_cache: true
+#      filename: /etc/apt/sources.list.d/grafana-5.x #.list extension is automatically added by ansible
+
+- name: Install Grafana
+  yum:
+      name: grafana
+      update_cache: yes
+
+- name: Starting Grafana as a service
+  service:
+      name: grafana-server
+      state: started
+      enabled: yes

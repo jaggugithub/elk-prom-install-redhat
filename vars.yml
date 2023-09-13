@@ -1,0 +1,4 @@
+control_host: Test
+control_user: ec2-user
+node_host: App
+node_user: ec2-user

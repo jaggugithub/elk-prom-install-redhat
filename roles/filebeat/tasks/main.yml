@@ -1,0 +1,59 @@
+---
+# Role to install Filebeat 6.x
+
+- name: Import the Elasticsearch PGP Key
+  rpm_key:
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Install yum-utils
+  yum:
+    name: yum-utils
+    state: present
+
+- name: Add YUM repo to repository list
+  yum_repository:
+    name: elastic-8.x
+    description: Elastic 8.x Repository
+    baseurl: https://artifacts.elastic.co/packages/8.x/yum
+    gpgcheck: yes
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    enabled: yes
+
+- name: Install Filebeat with apt
+  yum:
+   name: filebeat
+   update_cache: yes
+
+- name: comment output.elasticsearch in configuration
+  replace:
+    dest: /etc/filebeat/filebeat.yml  # Replace with the actual path to your configuration file
+    regexp: '^output.elasticsearch:'
+    replace: '#output.elasticsearch:'
+
+- name: comment hosts in output.elasticsearch in configuration
+  lineinfile:
+    path: /etc/filebeat/filebeat.yml  # Replace with the actual path to your configuration file
+    regexp: '^(\s*hosts:\s*\[\"localhost:9200\"\])$'
+    line: '# \1'
+    #after: '#output.elasticsearch:'
+
+
+- name: Uncomment and update Logstash configuration
+  lineinfile:
+    path: /etc/filebeat/filebeat.yml  # Replace with the actual path to your configuration file
+    regexp: '^(\s*)#?(\s*)output.logstash:'
+    line: 'output.logstash:'
+    backrefs: yes
+
+- name: Update Logstash host IP address
+  lineinfile:
+    path: /etc/filebeat/filebeat.yml  # Replace with the actual path to your configuration file
+    regexp: '^\s*#?\s*hosts:\s*\[.*\]'
+    line: '  hosts: ["18.130.242.169:5044"]'  # Replace 'your_ip_address' with the actual IP address
+
+- name: Starting Filebeat as a service
+  service:
+   name: filebeat
+   state: started
+   enabled: yes

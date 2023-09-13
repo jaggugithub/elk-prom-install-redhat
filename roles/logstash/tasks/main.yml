@@ -1,0 +1,22 @@
+---
+# Role to install Logstash 6.x
+# If elasticsearch role is skipped, copy the pre-reqs of adding elastic apt-repo required here.
+
+- name: Install Logstash with yum
+  yum:
+   name: logstash
+   update_cache: yes
+
+- name: Copy the default logstash config
+  template:
+    src: logstash_main.conf.j2
+    dest: /etc/logstash/main.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Starting Logstash as a service
+  service:
+   name: logstash
+   state: started
+   enabled: yes

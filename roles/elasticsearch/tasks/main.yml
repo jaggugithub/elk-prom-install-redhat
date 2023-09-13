@@ -1,0 +1,57 @@
+---
+# Role to install Elasticsearch 8.x
+
+#- name: Upgrade all packages
+#  yum:
+#    name: '*'
+#    state: latest
+
+- name: Install the gnupg package
+  yum:
+    name: gnupg
+    state: present
+
+- name: Import the Elasticsearch PGP Key
+  rpm_key:
+    state: present
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+- name: Install yum-utils
+  package:
+   name: yum-utils
+   state: present
+   update_cache: yes
+
+- name: Add yum repo to source list
+  yum_repository:
+    name: elastic-8.x
+    description: Elasticsearch 8.x Repository
+    baseurl: https://artifacts.elastic.co/packages/8.x/yum
+    gpgcheck: yes
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    enabled: yes
+
+- name: Install Elasticsearch
+  package:
+   name: elasticsearch
+     #gpgcheck: no
+   state: present
+   update_cache: yes
+
+- name: Ensure elasticsearch binds only to localhost
+  lineinfile:
+   destfile: /etc/elasticsearch/elasticsearch.yml
+   regexp: 'network.host:'
+   line: 'network.host: "{{elasticsearch_host}}"'
+
+- name: Setting Elasticsearch port address
+  lineinfile:
+   destfile: /etc/elasticsearch/elasticsearch.yml
+   regexp: 'http.port:'
+   line: 'http.port: {{elasticsearch_port}}'
+
+- name: Starting Elasticsearch as a service
+  service:
+   name: elasticsearch
+   state: started
+   enabled: yes

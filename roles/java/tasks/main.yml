@@ -1,0 +1,26 @@
+---
+# Install Java
+
+- name: Install latest Java jre Version
+  become_user: root
+  yum:
+   name: java-11-openjdk
+   state: present
+   update_cache: yes
+- name: Install latest Java jdk Version
+  become_user: root
+  yum:
+   name: java-11-openjdk-devel
+   state: present
+   update_cache: yes
+- name: Set the JAVA_HOME in /etc/environment file
+  become_user: root
+  lineinfile:
+    path: /etc/environment
+    line: 'JAVA_HOME="/usr/lib/jvm/java-11-openjdk"'
+    state: present
+- name: Reload /etc/environment file
+  become_user: root
+  shell: source /etc/environment
+  args:
+    executable: /bin/bash
