@@ -6,6 +6,7 @@
   yum:
    name: logstash
    update_cache: yes
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
 
 - name: Copy the default logstash config
   template:
@@ -14,6 +15,13 @@
     owner: root
     group: root
     mode: 0644
+
+- name: Permit Traffic on Port 9600/tcp
+  firewalld:
+    port: 9600/tcp
+    permanent: true
+    state: enabled
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
 
 - name: Starting Logstash as a service
   service:

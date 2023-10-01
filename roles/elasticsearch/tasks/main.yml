@@ -10,6 +10,7 @@
   yum:
     name: gnupg
     state: present
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
 
 - name: Import the Elasticsearch PGP Key
   rpm_key:
@@ -18,9 +19,10 @@
 
 - name: Install yum-utils
   package:
-   name: yum-utils
-   state: present
-   update_cache: yes
+    name: yum-utils
+    state: present
+    update_cache: yes
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
 
 - name: Add yum repo to source list
   yum_repository:
@@ -30,6 +32,7 @@
     gpgcheck: yes
     gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     enabled: yes
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
 
 - name: Install Elasticsearch
   package:
@@ -49,6 +52,13 @@
    destfile: /etc/elasticsearch/elasticsearch.yml
    regexp: 'http.port:'
    line: 'http.port: {{elasticsearch_port}}'
+
+- name: Permit Traffic on Port 9200/tcp
+  firewalld:
+    port: 9200/tcp
+    permanent: true
+    state: enabled
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
 
 - name: Starting Elasticsearch as a service
   service:

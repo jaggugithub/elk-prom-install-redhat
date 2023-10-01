@@ -60,6 +60,12 @@
     group: root
     mode: 0644
 
+- name: Permit Traffic on Port 9093/tcp
+  firewalld:
+    port: 9093/tcp
+    permanent: true
+    state: enabled
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8") 
 
 - name: Starting Alertmanager as a service
   service:

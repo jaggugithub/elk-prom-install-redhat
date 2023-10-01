@@ -46,6 +46,13 @@
       group: root
       mode: 0644
 
+- name: Permit Traffic on Port 6000/tcp
+  firewalld:
+    port: 6000/tcp
+    permanent: true
+    state: enabled
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
+
 - name: Starting calert as a service
   service:
       name: calert

@@ -117,6 +117,13 @@
     line: "  - job_name: node-exporter\n    static_configs:\n      - targets: [\"13.40.83.242:9100\"]"
     insertafter: '^scrape_configs:'
 
+- name: Permit Traffic on Port 9090/tcp
+  firewalld:
+    port: 9090/tcp
+    permanent: true
+    state: enabled
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
+
 - name: Starting Prometheus as a service
   service:
    name: prometheus

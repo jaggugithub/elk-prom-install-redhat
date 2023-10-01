@@ -10,6 +10,7 @@
   yum:
     name: yum-utils
     state: present
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
 
 - name: Add YUM repo to repository list
   yum_repository:
@@ -19,11 +20,13 @@
     gpgcheck: yes
     gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     enabled: yes
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
 
 - name: Install Filebeat with apt
   yum:
    name: filebeat
    update_cache: yes
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
 
 - name: comment output.elasticsearch in configuration
   replace:
@@ -51,6 +54,13 @@
     path: /etc/filebeat/filebeat.yml  # Replace with the actual path to your configuration file
     regexp: '^\s*#?\s*hosts:\s*\[.*\]'
     line: '  hosts: ["18.130.242.169:5044"]'  # Replace 'your_ip_address' with the actual IP address
+
+- name: Permit Traffic on Port 5044/tcp
+  firewalld:
+    port: 5044/tcp
+    permanent: true
+    state: enabled
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
 
 - name: Starting Filebeat as a service
   service:

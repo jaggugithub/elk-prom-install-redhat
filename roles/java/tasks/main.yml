@@ -7,12 +7,14 @@
    name: java-11-openjdk
    state: present
    update_cache: yes
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
 - name: Install latest Java jdk Version
   become_user: root
   yum:
    name: java-11-openjdk-devel
    state: present
    update_cache: yes
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
 - name: Set the JAVA_HOME in /etc/environment file
   become_user: root
   lineinfile:

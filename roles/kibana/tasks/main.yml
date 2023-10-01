@@ -6,6 +6,7 @@
   yum:
    name: kibana
    update_cache: yes
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
 
 - name: Ensure Kibana binds only to localhost
   lineinfile:
@@ -24,6 +25,13 @@
    destfile: /etc/kibana/kibana.yml
    regexp: 'elasticsearch.url:'
    line: 'elasticsearch.url: "http://{{elasticsearch_host}}:{{elasticsearch_port}}"'
+
+- name: Permit Traffic on Port 5601/tcp
+  firewalld:
+    port: 5601/tcp
+    permanent: true
+    state: enabled
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
 
 - name: Starting Kibana as a service
   service:
